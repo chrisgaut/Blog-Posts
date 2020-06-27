@@ -1,0 +1,139 @@
+## What we can learn from expected stats
+## Blog Posts
+## Christopher Gauthier - 04/08/2020
+
+# Load Library #
+library(tidyverse)
+
+# Importing and rearranging the data #
+xstats <- read_csv("/Users/chrisgauthier/ChrisDocs/Data_Work/New Data Projects/Proj6_xStats_BFN/xStats_BaseballSavant_2019Q.csv")
+
+xstats <- xstats %>%
+  select(last_name, first_name, batting_avg, xba, slg_percent, xslg, on_base_percent, xobp,
+         isolated_power, xiso, woba, xwoba, exit_velocity_avg, launch_angle_avg, 
+         barrel_batted_rate)
+
+# Analyzing difference in BA/xBA #
+ba_luckiest <- xstats %>%
+  select(last_name, first_name, batting_avg, xba, 
+         barrel_batted_rate, exit_velocity_avg, launch_angle_avg) %>%
+  mutate(ba_diff = batting_avg - xba) %>%
+  arrange(desc(ba_diff))
+ba_luckiest
+
+ba_unluckiest <- xstats %>%
+  select(last_name, first_name, batting_avg, xba, 
+         barrel_batted_rate, exit_velocity_avg, launch_angle_avg) %>%
+  mutate(ba_diff = batting_avg - xba) %>%
+  arrange(ba_diff)
+ba_unluckiest
+
+# Analyzing difference in OBP/xOBP #
+obp_luckiest <- xstats %>%
+  select(last_name, first_name, on_base_percent, xobp, 
+         barrel_batted_rate, exit_velocity_avg, launch_angle_avg) %>%
+  mutate(obp_diff = on_base_percent - xobp) %>%
+  arrange(desc(obp_diff))
+obp_luckiest
+
+obp_unluckiest <- xstats %>%
+  select(last_name, first_name, on_base_percent, xobp, 
+         barrel_batted_rate, exit_velocity_avg, launch_angle_avg) %>%
+  mutate(obp_diff = on_base_percent - xobp) %>%
+  arrange(obp_diff)
+obp_unluckiest
+
+# Analyzing difference in ISO/xISO #
+iso_luckiest <- xstats %>%
+  select(last_name, first_name, isolated_power, xiso, 
+         barrel_batted_rate, exit_velocity_avg, launch_angle_avg) %>%
+  mutate(iso_diff = isolated_power - xiso) %>%
+  arrange(desc(iso_diff))
+iso_luckiest
+
+iso_unluckiest <- xstats %>%
+  select(last_name, first_name, isolated_power, xiso, 
+         barrel_batted_rate, exit_velocity_avg, launch_angle_avg) %>%
+  mutate(iso_diff = isolated_power - xiso) %>%
+  arrange(iso_diff)
+iso_unluckiest
+
+# Analyzing difference in SLG/xSLG #
+slg_luckiest <- xstats %>%
+  select(last_name, first_name, slg_percent, xslg, 
+         barrel_batted_rate, exit_velocity_avg, launch_angle_avg) %>%
+  mutate(slg_diff = slg_percent - xslg) %>%
+  arrange(desc(slg_diff))
+slg_luckiest
+
+slg_unluckiest <- xstats %>%
+  select(last_name, first_name, slg_percent, xslg, 
+         barrel_batted_rate, exit_velocity_avg, launch_angle_avg) %>%
+  mutate(slg_diff = slg_percent - xslg) %>%
+  arrange(slg_diff)
+slg_unluckiest
+
+# Analyzing difference in wOBA/xwOBA #
+woba_luckiest <- xstats %>%
+  select(last_name, first_name, woba, xwoba, 
+         barrel_batted_rate, exit_velocity_avg, launch_angle_avg) %>%
+  mutate(woba_diff = woba - xwoba) %>%
+  arrange(desc(woba_diff))
+woba_luckiest
+
+woba_unluckiest <- xstats %>%
+  select(last_name, first_name, woba, xwoba, 
+         barrel_batted_rate, exit_velocity_avg, launch_angle_avg) %>%
+  mutate(woba_diff = woba - xwoba) %>%
+  arrange(woba_diff)
+woba_unluckiest
+
+# Visualization #
+ba_lucky_plot <- ggplot(ba_luckiest %>% arrange(desc(ba_diff)) %>% head(10), aes(x = last_name, y = ba_diff)) +
+  geom_col()
+ba_lucky_plot
+
+# Comparing medians for stats and the comparative expected stats #
+median(xstats$batting_avg)
+median(xstats$xba)
+
+median(xstats$on_base_percent)
+median(xstats$xobp)
+
+median(xstats$isolated_power)
+median(xstats$xiso)
+
+median(xstats$slg_percent)
+median(xstats$xslg)
+
+median(xstats$woba)
+median(xstats$xwoba)
+
+# Comparing variances for expected stats #
+
+sd(xstats$xba)
+sd(xstats$xobp)
+sd(xstats$xiso)
+sd(xstats$xslg)
+sd(xstats$xwoba)
+
+# Sprint speeds for BA-xBA leaders #
+sprints_ba <- read_csv("/Users/chrisgauthier/ChrisDocs/Data_Work/New Data Projects/Proj6_xStats_BFN/BA-xBA_and_SprintSpeed.csv")
+sprints_ba
+
+model <- lm(xbadiff ~ sprint_speed, data = sprints_ba)
+model
+summary(model)
+cor(sprints_ba$xbadiff, sprints_ba$sprint_speed)
+
+# Visualization regressing sprint speed to xBA difference #
+ggplot(sprints_ba, aes(x = sprint_speed, y = xbadiff)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  xlab("Sprint Speed") +
+  ylab("BA-xBA") +
+  ggtitle("Relationship Between Sprint Speed and BA-xBA") +
+  geom_rect(xmin = 21.9, xmax = 24, ymin = .039, ymax = .051, fill = "white", color = "black") +
+  annotate("text", x = 22.6, y = .053, label = "Summary Statistics", fontface = 2) +
+  annotate("text", x = 22, y = .045, label = 
+             "y = -0.0319 + 0.0013\nR-square: 1.3%\nCorrelation Coefficient: 0.114\np-value: 0.002", hjust = 0)
