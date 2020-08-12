@@ -1,4 +1,5 @@
 ## "Will the Mets Benefit from the New DH Rule?" Analysis
+## Blog Posts
 ## Christopher Gauthier - July 10, 2020
 
 # Load libraries
